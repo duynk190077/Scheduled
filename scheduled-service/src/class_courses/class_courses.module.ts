@@ -6,9 +6,11 @@ import { ClassCourse, ClassCourseSchema } from './entities/class_course.entity';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: ClassCourse.name, schema: ClassCourseSchema }])
+    MongooseModule.forFeature([
+      { name: ClassCourse.name, schema: ClassCourseSchema },
+    ]),
   ],
   controllers: [ClassCoursesController],
-  providers: [ClassCoursesService]
+  providers: [ClassCoursesService],
 })
 export class ClassCoursesModule {}

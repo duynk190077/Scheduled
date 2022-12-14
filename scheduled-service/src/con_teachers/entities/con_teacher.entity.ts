@@ -6,13 +6,13 @@ export type ConTeacherDocument = ConTeacher & mongoose.Document;
 
 @Schema({ timestamps: true })
 export class ConTeacher {
-    id?: string;
+  id?: string;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Teacher.name })
-    teacher_id: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Teacher.name })
+  teacher_id: string;
 
-    @Prop({ type: [Boolean]})
-    constraint: [boolean];
+  @Prop({ type: [Number] })
+  constraint: number[];
 }
 
 export const ConTeacherSchema = SchemaFactory.createForClass(ConTeacher);

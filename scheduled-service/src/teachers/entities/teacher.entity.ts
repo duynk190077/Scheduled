@@ -7,17 +7,16 @@ export type TeacherDocument = Teacher & mongoose.Document;
 
 @Schema({ timestamps: true })
 export class Teacher {
-    id?: string;
-    
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
-    user_id: string;
+  id?: string;
 
-    @Prop({ type: String, required: true })
-    fullname: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
+  user_id: string;
 
-    @Prop({ type: [mongoose.Schema.Types.ObjectId ], ref: Course.name })
-    course_ids: string[];
+  @Prop({ type: String, required: true })
+  fullname: string;
 
+  @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: Course.name })
+  course_ids: string[];
 }
 
 export const TeacherSchema = SchemaFactory.createForClass(Teacher);
