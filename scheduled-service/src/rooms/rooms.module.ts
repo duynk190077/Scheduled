@@ -6,9 +6,9 @@ import { Room, RoomSchema } from './entities/room.entity';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Room.name, schema: RoomSchema }])
+    MongooseModule.forFeature([{ name: Room.name, schema: RoomSchema }]),
   ],
   controllers: [RoomsController],
-  providers: [RoomsService]
+  providers: [RoomsService],
 })
 export class RoomsModule {}

@@ -6,13 +6,13 @@ export type ConRoomDocument = ConRoom & mongoose.Document;
 
 @Schema({ timestamps: true })
 export class ConRoom {
-    id?: string;
+  id?: string;
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Room.name })
-    room_id: string;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Room.name })
+  room_id: string;
 
-    @Prop({ type: [Boolean]})
-    constraint: [boolean];
+  @Prop({ type: [Number] })
+  constraint: number[];
 }
 
 export const ConRoomSchema = SchemaFactory.createForClass(ConRoom);

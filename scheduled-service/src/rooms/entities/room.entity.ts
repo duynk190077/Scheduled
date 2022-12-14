@@ -5,13 +5,13 @@ export type RoomDocument = Room & mongoose.Document;
 
 @Schema({ timestamps: true })
 export class Room {
-    id?: string;
+  id?: string;
 
-    @Prop({ type: String, required: true, unique: true })
-    name: string;
+  @Prop({ type: String, required: true, unique: true })
+  name: string;
 
-    @Prop({ type: Number, required: true })
-    size: number;
+  @Prop({ type: Number, required: true })
+  size: number;
 }
 
 export const RoomSchema = SchemaFactory.createForClass(Room);

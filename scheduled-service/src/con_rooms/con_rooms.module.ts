@@ -6,9 +6,9 @@ import { ConRoom, ConRoomSchema } from './entities/con_room.entity';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: ConRoom.name, schema: ConRoomSchema }])
+    MongooseModule.forFeature([{ name: ConRoom.name, schema: ConRoomSchema }]),
   ],
   controllers: [ConRoomsController],
-  providers: [ConRoomsService]
+  providers: [ConRoomsService],
 })
 export class ConRoomsModule {}

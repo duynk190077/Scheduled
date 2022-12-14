@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { ClassCoursesService } from './class_courses.service';
 import { CreateClassCourseDto } from './dto/create-class_course.dto';
 import { UpdateClassCourseDto } from './dto/update-class_course.dto';
@@ -17,13 +25,21 @@ export class ClassCoursesController {
     return this.classCoursesService.findAll();
   }
 
+  @Get('/scheduled/build')
+  scheduled() {
+    return this.classCoursesService.scheduled();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.classCoursesService.findOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateClassCourseDto: UpdateClassCourseDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateClassCourseDto: UpdateClassCourseDto,
+  ) {
     return this.classCoursesService.update(+id, updateClassCourseDto);
   }
 

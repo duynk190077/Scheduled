@@ -15,17 +15,17 @@ import { ConRoomsModule } from './con_rooms/con_rooms.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true}),
+    ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRoot(process.env.DATABASE_URL),
-    UsersModule,
-    StudentsModule,
-    TeachersModule,
-    CoursesModule,
-    RoomsModule,
+    // UsersModule,
+    // StudentsModule,
+    // TeachersModule,
+    // CoursesModule,
+    // RoomsModule,
     ClassCoursesModule,
-    TeachingsModule,
-    ConTeachersModule,
-    ConRoomsModule
+    // TeachingsModule,
+    // ConTeachersModule,
+    // ConRoomsModule
   ],
   controllers: [AppController],
   providers: [AppService],
