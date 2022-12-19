@@ -14,6 +14,7 @@ export class Scheduled {
   private lessonPerday: number;
   private con_teachers: ConTeacher[];
   private con_rooms: ConRoom[];
+  private con_group: any[]
   constructor(
     class_courses: ClassCourse[],
     rooms: Room[],
@@ -21,6 +22,7 @@ export class Scheduled {
     pm,
     con_teachers: ConTeacher[] = [],
     con_rooms: ConRoom[] = [],
+    con_group: any[] = [],
   ) {
     this.class_courses = class_courses;
     this.rooms = rooms;
@@ -31,6 +33,7 @@ export class Scheduled {
     this.lessonPerday = 6;
     this.con_teachers = con_teachers;
     this.con_rooms = con_rooms;
+    this.con_group = con_group;
   }
 
   private InitPopulation() {
@@ -78,8 +81,9 @@ export class Scheduled {
     let fitnessTeaching = this.checkTeching(chromosome);
     let fitnessConTeacher = this.checkConTeacher(chromosome);
     let fitnessConRoom = this.checkConRoom(chromosome);
+    let fitnessConGroup = this.checkGroup(chromosome);
     return (
-      fitnessRoomSize + fitnessTeaching + fitnessConTeacher + fitnessConRoom
+      fitnessRoomSize + fitnessTeaching + fitnessConTeacher + fitnessConRoom + fitnessConGroup
     );
   }
   // Mutaion
@@ -326,6 +330,26 @@ export class Scheduled {
     return fitness;
   }
 
+  private checkGroup(chromosome: any): number {
+    let fitness: number = 0;
+    const checkDuplicate = (gen1, gen2): number => {
+      if (gen1.day !== gen2.day) return 0;
+      if (gen1.start > gen2.end || gen1.end < gen2.start) return 0;
+      return 1;
+    };
+    for (let k = 0 ; k < this.con_group.length; k++) {
+      const course_group = this.con_group[k];
+      for (let i = 0 ; i < course_group.length - 1; i++) {
+        for (let j = i + 1; j < course_group.length; j++) {
+          const index1 = this.class_courses.findIndex((e) => e.code === course_group[i]);
+          const index2 = this.class_courses.findIndex((e) => e.code === course_group[j]);
+          fitness += checkDuplicate(chromosome.gen[index1], chromosome.gen[index2]);
+        }
+      }
+    }
+    return fitness;
+  }
+ 
   private InitTimetable() {
     let timetable = [];
     for (let i = 0; i < this.rooms.length; i++) {
