@@ -103,3 +103,8 @@ export const con_teachers: ConTeacher[] = [
     constraint: [7, 8, 9, 10, 11, 12],
   },
 ];
+
+export const con_group = [
+  ["IT1111", "IT1117"],
+  ["IT1112", "IT1113"]
+]

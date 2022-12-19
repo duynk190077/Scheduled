@@ -34,6 +34,7 @@ export class ClassCoursesService {
     const teachings = constant.teachings;
     const con_teachers = constant.con_teachers;
     const con_rooms = constant.con_rooms;
+    const con_group = constant.con_group;
     // let population = this.initPopulation(class_course, rooms, popsize);
     const scheduled = new Scheduled(
       class_course,
@@ -42,6 +43,7 @@ export class ClassCoursesService {
       0.15,
       con_teachers,
       con_rooms,
+      con_group
     );
 
     scheduled.scheduled();
