@@ -10,8 +10,6 @@ import { CoursesModule } from './courses/courses.module';
 import { RoomsModule } from './rooms/rooms.module';
 import { ClassCoursesModule } from './class_courses/class_courses.module';
 import { TeachingsModule } from './teachings/teachings.module';
-import { ConTeachersModule } from './con_teachers/con_teachers.module';
-import { ConRoomsModule } from './con_rooms/con_rooms.module';
 
 @Module({
   imports: [
@@ -19,13 +17,11 @@ import { ConRoomsModule } from './con_rooms/con_rooms.module';
     MongooseModule.forRoot(process.env.DATABASE_URL),
     // UsersModule,
     // StudentsModule,
-    // TeachersModule,
-    // CoursesModule,
-    // RoomsModule,
+    TeachersModule,
+    CoursesModule,
+    RoomsModule,
     ClassCoursesModule,
-    // TeachingsModule,
-    // ConTeachersModule,
-    // ConRoomsModule
+    TeachingsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -67,16 +67,16 @@ export const rooms: Room[] = [
   },
 ];
 
-export const teachings: Teaching[] = [
-  {
-    teacher_id: '1',
-    class_code: ['123456', '123457', '123459'],
-  },
-  {
-    teacher_id: '2',
-    class_code: ['123450', '123451', '123452', '123453'],
-  },
-];
+// export const teachings: Teaching[] = [
+//   {
+//     teacher_id: '1',
+//     class_codes: ['123456', '123457', '123459'],
+//   },
+//   {
+//     teacher_id: '2',
+//     class_codes: ['123450', '123451', '123452', '123453'],
+//   },
+// ];
 
 export const con_rooms: ConRoom[] = [
   {

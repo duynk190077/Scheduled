@@ -1,6 +1,4 @@
 import { ClassCourse } from 'src/class_courses/entities/class_course.entity';
-import { ConRoom } from 'src/con_rooms/entities/con_room.entity';
-import { ConTeacher } from 'src/con_teachers/entities/con_teacher.entity';
 import { Room } from 'src/rooms/entities/room.entity';
 import { Teaching } from 'src/teachings/entities/teaching.entity';
 
@@ -12,27 +10,23 @@ export class Scheduled {
   private popsize: number;
   private pm: number;
   private lessonPerday: number;
-  private con_teachers: ConTeacher[];
-  private con_rooms: ConRoom[];
+  private day: number;
   private con_group: any[]
   constructor(
     class_courses: ClassCourse[],
     rooms: Room[],
     teachings: Teaching[],
     pm,
-    con_teachers: ConTeacher[] = [],
-    con_rooms: ConRoom[] = [],
     con_group: any[] = [],
   ) {
     this.class_courses = class_courses;
     this.rooms = rooms;
     this.teachings = teachings;
     this.population = [];
-    this.popsize = class_courses.length * 2;
+    this.popsize = class_courses.length * 3;
     this.pm = pm;
     this.lessonPerday = 6;
-    this.con_teachers = con_teachers;
-    this.con_rooms = con_rooms;
+    this.day = 10;
     this.con_group = con_group;
   }
 
@@ -43,51 +37,50 @@ export class Scheduled {
   }
 
   public scheduled() {
+    const startTime = new Date();
     this.InitPopulation();
     let minFitness = 1000;
+    let dem = 0;
     while (minFitness !== 0) {
-      for (let i = 0; i < this.population.length; i++) {
-        minFitness = Math.min(this.Fitness(this.population[i]), minFitness);
-      }
+      dem ++;
+      this.population.sort((chr1, chr2) => {
+        return chr2.fitness - chr1.fitness;
+      });
+      this.population = this.population.slice(-this.popsize);
+      console.log(this.population.length, this.popsize);
+      minFitness = this.population[this.population.length - 1].fitness;
+      console.log(dem, minFitness);
       if (minFitness === 0) {
         break;
       }
-      this.population = this.Crossover();
-      this.Mutation();
-      //selective
-      this.population.sort((chr1, chr2) => {
-        const fit1 = this.Fitness(chr1);
-        const fit2 = this.Fitness(chr2);
-        return fit1 - fit2;
-      });
-      this.population = this.population.slice(0, this.popsize);
-      // console.log("population", this.population);
+      const crossPopulation = this.Crossover();
+      // console.log(this.population.length);
+      const mutationPopulation = this.Mutation();
+      this.population = this.population.concat(crossPopulation, mutationPopulation);
+      // this.popsize = Math.floor(this.popsize * 1.02);
     }
+    const endTime = new Date();
+    const finish = Math.abs(endTime.getTime() - startTime.getTime());
+    console.log(finish);
+    return this.population[0];
   }
 
   public getPopulation() {
     return this.population;
   }
 
-  public getFitness() {
-    let fitness = [];
-    for (let i = 0; i < this.population.length; i++)
-      fitness.push(this.Fitness(this.population[i]));
-    return fitness;
-  }
   // Calculate Fitness negative
   private Fitness(chromosome: any): number {
     let fitnessRoomSize = this.checkRoomSize(chromosome);
     let fitnessTeaching = this.checkTeching(chromosome);
-    let fitnessConTeacher = this.checkConTeacher(chromosome);
-    let fitnessConRoom = this.checkConRoom(chromosome);
     let fitnessConGroup = this.checkGroup(chromosome);
     return (
-      fitnessRoomSize + fitnessTeaching + fitnessConTeacher + fitnessConRoom + fitnessConGroup
+      fitnessRoomSize + fitnessTeaching + fitnessConGroup
     );
   }
   // Mutaion
   private Mutation() {
+    let newPopulation = [];
     for (let i = 0; i < this.population.length - 1; i++) {
       let chromosome = this.population[i];
       for (let j = 0; j < chromosome.gen.length; j++) {
@@ -110,8 +103,10 @@ export class Scheduled {
           chromosome.gen[j] = gen;
         }
       }
-      this.population[i] = chromosome;
+      chromosome.fitness = this.Fitness(chromosome);
+      newPopulation.push(chromosome);
     }
+    return newPopulation;
   }
   // Crossover
   private Crossover() {
@@ -124,15 +119,17 @@ export class Scheduled {
     let newPopulation = [];
     for (let i = 0; i < this.population.length - 1; i++) {
       const father = this.population[i];
-      for (let k = i + 1; k < this.population.length; k++) {
+      for (let k = i + 1; k < i + 2; k++) {
         const mother = this.population[k];
         let newChr1 = {
             gen: [],
             timetable: null,
+            fitness: 1000
           },
           newChr2 = {
             gen: [],
             timetable: null,
+            fitness: 1000
           };
         for (let j = 0; j < father.gen.length; j++) {
           const rand = Math.floor(Math.random() * 2);
@@ -177,14 +174,12 @@ export class Scheduled {
         }
         newChr2.timetable = timetable;
         //If timetable is valid, add newChr to population
+        newChr1.fitness = this.Fitness(newChr1);
+        newChr2.fitness = this.Fitness(newChr2);
         if (check1) newPopulation.push(newChr1);
         if (check2) newPopulation.push(newChr2);
       }
     }
-    if (newPopulation.length < this.popsize)
-      for (let i = 0; i < this.population.length; i++) {
-        newPopulation.push(this.population[i]);
-      }
     return newPopulation;
   }
   // Random NST
@@ -192,11 +187,12 @@ export class Scheduled {
     let chromosome = {
       gen: [],
       timetable: null,
+      fitness: 1000,
     };
     let timetable = [];
     for (let i = 0; i < this.rooms.length; i++) {
       timetable[i] = [];
-      for (let j = 2; j <= 6; j++) {
+      for (let j = 2; j <= this.day + 1; j++) {
         timetable[i][j] = [];
         for (let k = 1; k <= this.lessonPerday; k++) {
           timetable[i][j][k] = true;
@@ -211,12 +207,13 @@ export class Scheduled {
       chromosome.gen.push(gen);
     }
     chromosome.timetable = timetable;
+    chromosome.fitness = this.Fitness(chromosome);
     return chromosome;
   }
   // Random gen
   private RandomGen(class_course: ClassCourse, timetable: boolean[][][]): any {
     while (true) {
-      const day = this.RandomBetween(2, 6);
+      const day = this.RandomBetween(2, this.day + 1);
       const room = this.RandomBetween(0, this.rooms.length - 1);
       let available: number[] = [];
       for (let i = 1; i <= this.lessonPerday - class_course.lesson + 1; i++) {
@@ -256,13 +253,13 @@ export class Scheduled {
 
     let fitness = 0;
     this.teachings.forEach((teaching) => {
-      for (let i = 0; i < teaching.class_code.length; i++) {
-        for (let j = i + 1; j < teaching.class_code.length; j++) {
+      for (let i = 0; i < teaching.class_codes.length; i++) {
+        for (let j = i + 1; j < teaching.class_codes.length; j++) {
           const index1 = this.class_courses.findIndex(
-            (e) => e.course_code === teaching.class_code[i],
+            (e) => e.code === teaching.class_codes[i],
           );
           const index2 = this.class_courses.findIndex(
-            (e) => e.course_code === teaching.class_code[j],
+            (e) => e.code === teaching.class_codes[j],
           );
           const fitness1 = checkDuplicate(
             chromosome.gen[index1],
@@ -279,56 +276,56 @@ export class Scheduled {
     return Math.floor(Math.random() * (max - min + 1) + min);
   }
 
-  private checkConTeacher(chromosome: any): number {
-    let fitness = 0;
-    const checkDuplicate = (constraint: number[], gen) => {
-      for (let i = gen.start; i <= gen.end; i++) {
-        if (constraint.includes((gen.day - 2) * this.lessonPerday + i))
-          return 1;
-      }
-      return 0;
-    };
-    this.teachings.forEach((teaching) => {
-      const con_teacher =
-        this.con_teachers[
-          this.con_teachers.findIndex(
-            (e) => e.teacher_id === teaching.teacher_id,
-          )
-        ];
-      for (let i = 0; i < teaching.class_code.length; i++) {
-        const index = this.class_courses.findIndex(
-          (e) => e.course_code === teaching.class_code[i],
-        );
-        fitness += checkDuplicate(
-          con_teacher.constraint,
-          chromosome.gen[index],
-        );
-      }
-    });
-    return fitness;
-  }
+  // private checkConTeacher(chromosome: any): number {
+  //   let fitness = 0;
+  //   const checkDuplicate = (constraint: number[], gen) => {
+  //     for (let i = gen.start; i <= gen.end; i++) {
+  //       if (constraint.includes((gen.day - 2) * this.lessonPerday + i))
+  //         return 1;
+  //     }
+  //     return 0;
+  //   };
+  //   this.teachings.forEach((teaching) => {
+  //     const con_teacher =
+  //       this.con_teachers[
+  //         this.con_teachers.findIndex(
+  //           (e) => e.teacher_id === teaching.teacher_id,
+  //         )
+  //       ];
+  //     for (let i = 0; i < teaching.class_codess.length; i++) {
+  //       const index = this.class_courses.findIndex(
+  //         (e) => e.code === teaching.class_codess[i],
+  //       );
+  //       fitness += checkDuplicate(
+  //         con_teacher.constraint,
+  //         chromosome.gen[index],
+  //       );
+  //     }
+  //   });
+  //   return fitness;
+  // }
 
-  private checkConRoom(chromosome: any): number {
-    let fitness = 0;
-    const checkDuplicate = (constraint: number[], gen) => {
-      for (let i = gen.start; i <= gen.end; i++) {
-        if (constraint.includes((gen.day - 2) * this.lessonPerday + i))
-          return 1;
-      }
-      return 0;
-    };
-    this.rooms.forEach((room) => {
-      const con_room =
-        this.con_rooms[this.con_rooms.findIndex((e) => e.room_id === room.id)];
-      for (let i = 0; i < chromosome.gen.length; i++) {
-        const gen = chromosome.gen[i];
-        if (this.rooms[gen.room].id === room.id) {
-          fitness += checkDuplicate(con_room.constraint, gen);
-        }
-      }
-    });
-    return fitness;
-  }
+  // private checkConRoom(chromosome: any): number {
+  //   let fitness = 0;
+  //   const checkDuplicate = (constraint: number[], gen) => {
+  //     for (let i = gen.start; i <= gen.end; i++) {
+  //       if (constraint.includes((gen.day - 2) * this.lessonPerday + i))
+  //         return 1;
+  //     }
+  //     return 0;
+  //   };
+  //   this.rooms.forEach((room) => {
+  //     const con_room =
+  //       this.con_rooms[this.con_rooms.findIndex((e) => e.room_id === room.id)];
+  //     for (let i = 0; i < chromosome.gen.length; i++) {
+  //       const gen = chromosome.gen[i];
+  //       if (this.rooms[gen.room].id === room.id) {
+  //         fitness += checkDuplicate(con_room.constraint, gen);
+  //       }
+  //     }
+  //   });
+  //   return fitness;
+  // }
 
   private checkGroup(chromosome: any): number {
     let fitness: number = 0;
@@ -341,8 +338,9 @@ export class Scheduled {
       const course_group = this.con_group[k];
       for (let i = 0 ; i < course_group.length - 1; i++) {
         for (let j = i + 1; j < course_group.length; j++) {
-          const index1 = this.class_courses.findIndex((e) => e.code === course_group[i]);
-          const index2 = this.class_courses.findIndex((e) => e.code === course_group[j]);
+          const index1 = this.class_courses.findIndex((e) => e.course_code === course_group[i]);
+          const index2 = this.class_courses.findIndex((e) => e.course_code === course_group[j]);
+          if (index1 !== -1 && index2 !== -1)
           fitness += checkDuplicate(chromosome.gen[index1], chromosome.gen[index2]);
         }
       }
@@ -354,7 +352,7 @@ export class Scheduled {
     let timetable = [];
     for (let i = 0; i < this.rooms.length; i++) {
       timetable[i] = [];
-      for (let j = 2; j <= 6; j++) {
+      for (let j = 2; j <= this.day + 1; j++) {
         timetable[i][j] = [];
         for (let k = 1; k <= this.lessonPerday; k++) {
           timetable[i][j][k] = true;

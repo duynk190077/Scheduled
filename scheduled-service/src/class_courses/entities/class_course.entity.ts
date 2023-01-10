@@ -17,6 +17,7 @@ export class ClassCourse {
   @Prop({ type: Number, required: true })
   size: number;
 
+  @Prop({ type: Number, required: true })
   lesson: number;
 }
 
