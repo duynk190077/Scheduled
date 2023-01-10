@@ -9,11 +9,13 @@ export type TeachingDocument = Teaching & mongoose.Document;
 export class Teaching {
   id?: string;
 
-  @Prop({ type: [mongoose.Schema.Types.String], ref: ClassCourse.name })
-  class_code: string[];
+  @Prop({ type: mongoose.Schema.Types.String, ref: ClassCourse.name, unique: true })
+  class_code: string;
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Teacher.name })
   teacher_id: string;
+
+  class_codes?: string[];
 }
 
 export const TeachingSchema = SchemaFactory.createForClass(Teaching);

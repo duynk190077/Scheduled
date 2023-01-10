@@ -10,36 +10,12 @@ import {
 import { TeachingsService } from './teachings.service';
 import { CreateTeachingDto } from './dto/create-teaching.dto';
 import { UpdateTeachingDto } from './dto/update-teaching.dto';
+import { BaseController } from 'src/base/base.controller';
+import { Teaching } from './entities/teaching.entity';
 
 @Controller('teachings')
-export class TeachingsController {
-  constructor(private readonly teachingsService: TeachingsService) {}
-
-  @Post()
-  create(@Body() createTeachingDto: CreateTeachingDto) {
-    return this.teachingsService.create(createTeachingDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.teachingsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.teachingsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateTeachingDto: UpdateTeachingDto,
-  ) {
-    return this.teachingsService.update(+id, updateTeachingDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.teachingsService.remove(+id);
+export class TeachingsController extends BaseController<Teaching, CreateTeachingDto, UpdateTeachingDto> {
+  constructor(private readonly teachingsService: TeachingsService) {
+    super(teachingsService);
   }
 }

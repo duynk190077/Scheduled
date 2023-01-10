@@ -12,5 +12,6 @@ import { Teaching, TeachingSchema } from './entities/teaching.entity';
   ],
   controllers: [TeachingsController],
   providers: [TeachingsService],
+  exports: [TeachingsService],
 })
 export class TeachingsModule {}
