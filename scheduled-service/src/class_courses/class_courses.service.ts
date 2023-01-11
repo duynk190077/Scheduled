@@ -47,7 +47,7 @@ export class ClassCoursesService extends BaseService<ClassCourse, CreateClassCou
       let groups = courses.filter((c) => c.semester === i);
       con_groups.push(groups.map((g) => g.code));
     }
-    const scheduled = new Scheduled(class_courses, rooms, teachingConverts, 0.15, con_groups);
+    const scheduled = new Scheduled(class_courses, rooms, teachingConverts, 0.015, con_groups);
     console.log(class_courses.length * 2);
     // console.log(rooms.length);
     const bestChromosome  = scheduled.scheduled();

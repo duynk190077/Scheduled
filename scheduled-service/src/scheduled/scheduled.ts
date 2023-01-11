@@ -1,6 +1,7 @@
 import { ClassCourse } from 'src/class_courses/entities/class_course.entity';
 import { Room } from 'src/rooms/entities/room.entity';
 import { Teaching } from 'src/teachings/entities/teaching.entity';
+import { InitTimetable } from 'src/helper/InitTimeTable'
 
 export class Scheduled {
   private population: any[];
@@ -11,7 +12,8 @@ export class Scheduled {
   private pm: number;
   private lessonPerday: number;
   private day: number;
-  private con_group: any[]
+  private con_group: any[];
+  private intiTimetable: any;
   constructor(
     class_courses: ClassCourse[],
     rooms: Room[],
@@ -23,11 +25,12 @@ export class Scheduled {
     this.rooms = rooms;
     this.teachings = teachings;
     this.population = [];
-    this.popsize = class_courses.length * 3;
+    this.popsize = class_courses.length * 5;
     this.pm = pm;
     this.lessonPerday = 6;
     this.day = 10;
     this.con_group = con_group;
+    this.intiTimetable = InitTimetable(rooms.length, 10, 6);
   }
 
   private InitPopulation() {
@@ -47,22 +50,20 @@ export class Scheduled {
         return chr2.fitness - chr1.fitness;
       });
       this.population = this.population.slice(-this.popsize);
-      console.log(this.population.length, this.popsize);
       minFitness = this.population[this.population.length - 1].fitness;
       console.log(dem, minFitness);
       if (minFitness === 0) {
         break;
       }
       const crossPopulation = this.Crossover();
-      // console.log(this.population.length);
       const mutationPopulation = this.Mutation();
       this.population = this.population.concat(crossPopulation, mutationPopulation);
-      // this.popsize = Math.floor(this.popsize * 1.02);
+      this.popsize = Math.floor(this.popsize * 1.01);
     }
     const endTime = new Date();
     const finish = Math.abs(endTime.getTime() - startTime.getTime());
     console.log(finish);
-    return this.population[0];
+    return this.population[this.population.length - 1];
   }
 
   public getPopulation() {
@@ -91,14 +92,14 @@ export class Scheduled {
             this.class_courses[j],
             chromosome.timetable,
           );
-          // update timetable
-          for (let k = gen.start; k < gen.end; k++) {
-            chromosome.timetable[gen.room][gen.day][k] = false;
-          }
           // replace old gen and updaate timetable
           const oldGen = chromosome.gen[j];
-          for (let k = oldGen.start; k < oldGen.end; k++) {
-            chromosome.timetable[oldGen.room][oldGen.day][k] = true;
+          for (let k = oldGen.start; k <= oldGen.end; k++) {
+            chromosome.timetable[oldGen.room][oldGen.day - 2][k - 1] = true;
+          }
+          // update timetable
+          for (let k = gen.start; k <= gen.end; k++) {
+            chromosome.timetable[gen.room][gen.day - 2][k - 1] = false;
           }
           chromosome.gen[j] = gen;
         }
@@ -114,12 +115,13 @@ export class Scheduled {
       if (gen1.room !== gen2.room) return false;
       if (gen1.day !== gen2.day) return 0;
       if (gen1.start > gen2.end || gen1.end < gen2.start) return 0;
+      return 1;
     };
 
     let newPopulation = [];
     for (let i = 0; i < this.population.length - 1; i++) {
       const father = this.population[i];
-      for (let k = i + 1; k < i + 2; k++) {
+      for (let k = i + 1; k < Math.min(i + 2, this.population.length); k++) {
         const mother = this.population[k];
         let newChr1 = {
             gen: [],
@@ -146,7 +148,7 @@ export class Scheduled {
         //newChr1.
         let check1 = true,
           check2 = true,
-          timetable = this.InitTimetable();
+          timetable = this.getInitTimetable();
         for (let w = 0; w < newChr1.gen.length - 1; w++) {
           for (let j = w + 1; j < newChr1.gen.length; j++) {
             if (checkDuplicate(newChr1.gen[w], newChr2.gen[j])) {
@@ -155,11 +157,11 @@ export class Scheduled {
             }
           }
           for (let j = newChr1.gen[w].start; j <= newChr1.gen[w].end; j++)
-            timetable[newChr1.gen[w].room][newChr1.gen[w].day][j] = false;
+            timetable[newChr1.gen[w].room][newChr1.gen[w].day - 2][j - 1] = false;
           if (!check1) break;
         }
         newChr1.timetable = timetable;
-        timetable = this.InitTimetable();
+        timetable = this.getInitTimetable();
         //newChr2.
         for (let w = 0; w < newChr2.gen.length - 1; w++) {
           for (let j = w + 1; j < newChr2.gen.length; j++) {
@@ -169,7 +171,7 @@ export class Scheduled {
             }
           }
           for (let j = newChr2.gen[w].start; j <= newChr2.gen[w].end; j++)
-            timetable[newChr2.gen[w].room][newChr2.gen[w].day][j] = false;
+            timetable[newChr2.gen[w].room][newChr2.gen[w].day - 2][j - 1] = false;
           if (!check2) break;
         }
         newChr2.timetable = timetable;
@@ -182,6 +184,16 @@ export class Scheduled {
     }
     return newPopulation;
   }
+
+  private getInitTimetable() {
+    let cloneInit = [];
+    this.intiTimetable.forEach(val => {
+      let cloneInit1 = [];
+      val.forEach(arr => cloneInit1.push(Object.assign([], arr)));
+      cloneInit.push(cloneInit1);
+    })
+    return cloneInit;
+  }
   // Random NST
   private RandomChromosome(): any {
     let chromosome = {
@@ -189,20 +201,11 @@ export class Scheduled {
       timetable: null,
       fitness: 1000,
     };
-    let timetable = [];
-    for (let i = 0; i < this.rooms.length; i++) {
-      timetable[i] = [];
-      for (let j = 2; j <= this.day + 1; j++) {
-        timetable[i][j] = [];
-        for (let k = 1; k <= this.lessonPerday; k++) {
-          timetable[i][j][k] = true;
-        }
-      }
-    }
+    let timetable = this.getInitTimetable();
     for (let i = 0; i < this.class_courses.length; i++) {
       const gen = this.RandomGen(this.class_courses[i], timetable);
-      for (let j = gen.start; j < gen.end; j++) {
-        timetable[gen.room][gen.day][j] = false;
+      for (let j = gen.start; j <= gen.end; j++) {
+        timetable[gen.room][gen.day - 2][j - 1] = false;
       }
       chromosome.gen.push(gen);
     }
@@ -211,7 +214,8 @@ export class Scheduled {
     return chromosome;
   }
   // Random gen
-  private RandomGen(class_course: ClassCourse, timetable: boolean[][][]): any {
+  private RandomGen(class_course: ClassCourse, timetable: any): any {
+    // let dem = 0;
     while (true) {
       const day = this.RandomBetween(2, this.day + 1);
       const room = this.RandomBetween(0, this.rooms.length - 1);
@@ -219,7 +223,7 @@ export class Scheduled {
       for (let i = 1; i <= this.lessonPerday - class_course.lesson + 1; i++) {
         let can: boolean = true;
         for (let j = 0; j < class_course.lesson; j++) {
-          if (!timetable[room][day][i + j]) can = false;
+          if (!timetable[room][day - 2][i + j - 1]) can = false;
         }
         if (can) available.push(i);
       }
@@ -346,19 +350,5 @@ export class Scheduled {
       }
     }
     return fitness;
-  }
- 
-  private InitTimetable() {
-    let timetable = [];
-    for (let i = 0; i < this.rooms.length; i++) {
-      timetable[i] = [];
-      for (let j = 2; j <= this.day + 1; j++) {
-        timetable[i][j] = [];
-        for (let k = 1; k <= this.lessonPerday; k++) {
-          timetable[i][j][k] = true;
-        }
-      }
-    }
-    return timetable;
   }
 }
