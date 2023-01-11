@@ -9,7 +9,7 @@ import Scrollbar from '../../components/scrollbar/Scrollbar';
 import { apiGetAllTeacher } from 'src/services/Teacher';
 
 const columns = [
-    // { field: 'id', headerName: 'ID', width: 90 },
+    { field: 'id', headerName: 'ID', width: 300 },
     {
         field: 'fullname',
         headerName: 'Tên giáo viên',
