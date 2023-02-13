@@ -13,8 +13,8 @@ export const apiGetAllClassCourse = async() => {
     return response;
 }
 
-export const apiGetScheduled = async() => {
+export const apiGetScheduled = async(data) => {
     const url = SERVICE_URL + '/class-courses/scheduled/build';
-    const response = await api.get(url);
+    const response = await api.post(url, data);
     return response;
 }

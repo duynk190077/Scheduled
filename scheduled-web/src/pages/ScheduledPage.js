@@ -19,7 +19,6 @@ export default function ScheduledPage(props) {
             <Container>
                 <Stack direction={'column'} spacing={2}>
                     <Box>
-                        <Typography variant="h5" sx={{ mb: 1 }}>Danh sách lớp mở </Typography>
                         <ScheduledTable load={load}/>
                     </Box>
                 </Stack>

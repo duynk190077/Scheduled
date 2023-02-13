@@ -19,6 +19,10 @@ export class Scheduled {
   private intiTimetableTN: any;
   private roomTNs: Room[];
   private stopFitness: number;
+  private genType: number;
+  private isConRoomSize: boolean;
+  private isConGroup: boolean;
+  private isConTeaching: boolean;
   // private initCheck: any;
   constructor(
     class_courses: ClassCourse[],
@@ -26,13 +30,17 @@ export class Scheduled {
     roomTNs: Room[],
     teachings: Teaching[],
     pm,
+    scale: number,
+    genType: number,
+    constraints: number[],
+    stopFitness: number,
     con_group: any[] = [],
   ) {
     this.class_courses = class_courses;
     this.rooms = rooms;
     this.teachings = teachings;
     this.population = [];
-    this.popsize = class_courses.length;
+    this.popsize = class_courses.length * scale;
     this.pm = pm;
     this.lessonPerday = 6;
     this.day = 10;
@@ -40,7 +48,11 @@ export class Scheduled {
     this.intiTimetable = InitTimetable(rooms.length, 10, 6);
     this.roomTNs = roomTNs;
     this.intiTimetableTN = InitTimetableTN(roomTNs.length, 10, 6, 18);
-    this.stopFitness = 0;
+    this.genType = genType;
+    this.isConRoomSize = constraints.includes(1);
+    this.isConGroup = constraints.includes(2);
+    this.isConTeaching = constraints.includes(3);
+    this.stopFitness = stopFitness;
     // this.initCheck = InitCheck(class_courses.length * 10);
   }
 
@@ -88,10 +100,10 @@ export class Scheduled {
 
   // Calculate Fitness negative
   private Fitness(chromosome: any, last: boolean = false): number {
-    let fitnessRoomSize = this.checkRoomSize(chromosome);
-    // let fitnessTeaching = this.checkTeching(chromosome);
-    let fitnessTeaching = 0;
-    let fitnessConGroup = this.checkGroup(chromosome);
+    let fitnessRoomSize = this.isConRoomSize ? this.checkRoomSize(chromosome) : 0;
+    let fitnessTeaching = this.isConTeaching ? this.checkTeching(chromosome) : 0;
+    // let fitnessTeaching = 0;
+    let fitnessConGroup = this.isConGroup ? this.checkGroup(chromosome) : 0;
     if (last) console.log(fitnessRoomSize, fitnessTeaching, fitnessConGroup);
     return fitnessRoomSize + fitnessTeaching + fitnessConGroup;
   }
@@ -334,9 +346,12 @@ export class Scheduled {
         }
         if (weekAvailable.length >= 5) {
           while (weekAvailable.length > 5) {
-            // const randIndex = this.RandomBetween(0, weekAvailable.length - 1);
-            // weekAvailable.splice(randIndex, 1);
-            weekAvailable.pop();
+            if (this.genType === 2) {
+              const randIndex = this.RandomBetween(0, weekAvailable.length - 1);
+              weekAvailable.splice(randIndex, 1);
+            } else {
+              weekAvailable.pop();
+            }
           };
           return {
             day: day,

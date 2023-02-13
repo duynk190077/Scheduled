@@ -35,8 +35,9 @@ export class ClassCoursesService extends BaseService<
     return await this.classCourseModel.find({ type: type });
   }
 
-  async scheduled() {
+  async scheduled(scheduledData: any) {
     try {
+      console.log(scheduledData);
       const teachers = (await this.teacherService.findAll()).data;
       const rooms = await this.roomService.findByType('LT+BT');
       const roomTNs = await this.roomService.findByType('TN');
@@ -100,7 +101,11 @@ export class ClassCoursesService extends BaseService<
         rooms,
         roomTNs,
         teachingConverts,
-        0.015,
+        +scheduledData.pm,
+        +scheduledData.scale,
+        scheduledData.genType,
+        scheduledData.constraints,
+        +scheduledData.stopFitness,
         con_groups,
       );
       const bestChromosome = scheduled.scheduled();
