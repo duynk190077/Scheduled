@@ -2,6 +2,7 @@ import { Autocomplete, Grid, Paper, Table, TableBody, TableCell, TableContainer,
 import { makeStyles } from "@mui/styles";
 import clsx from "clsx";
 import { useEffect, useMemo, useState } from "react";
+import { apiGetAllCourse } from "src/services/Course";
 import { apiGetAllRooms } from "src/services/Room";
 import { apiGetAllTeacher } from "src/services/Teacher";
 
@@ -16,7 +17,9 @@ const switchTimetable = (timetables) => {
         for (let j = 0; j < 12; j++) switchArr[i].push(false);
     timetables.map((p) => {
         for (let i = p.start; i <= p.end; i++)
-            switchArr[p.day - 2][i + 6 * p.session - 1] = p.course_code;
+            if (switchArr[p.day - 2][i + 6 * p.session - 1] === false)
+                switchArr[p.day - 2][i + 6 * p.session - 1] = p.code;
+            else switchArr[p.day - 2][i + 6 * p.session - 1] += ' ' + p.code;
         return 0;
     })
 
@@ -31,14 +34,17 @@ export default function ScheduledFilter(props) {
     const [rooms, setRooms] = useState([]);
     const [teacher, setTeacher] = useState(null);
     const [teachers, setTeachers] = useState([]);
+    const [courses, setCourses] = useState([]);
+    const [course, setCourse] = useState([]);
 
     const timetableFilters = useMemo(() => {
-        if (room === null && teacher === null) return switchTimetable([]);
-        let result = timetables;
+        if (room === null && teacher === null && course.length === 0) return switchTimetable([]);
+        let result = timetables, courseCode = course.map((p) => p.code);
         if (room !== null) result = result.filter((e) => e.room === room.name);
         if (teacher !== null) result = result.filter((e) => e.teacher_id === teacher.id);
+        if (courseCode.length > 0) result = result.filter((e) => courseCode.includes(e.course_code))
         return switchTimetable(result);
-    }, [room, teacher])
+    }, [room, teacher, course, timetables])
 
 
     useEffect(() => {
@@ -77,10 +83,29 @@ export default function ScheduledFilter(props) {
         fetchAPI();
     }, [])
 
+    useEffect(() => {
+        const fetchAPI = async () => {
+            try {
+                const response = await apiGetAllCourse();
+                setCourses(response.data.data.map((p) => {
+                    return {
+                        ...p,
+                        id: p._id
+                    }
+                }));
+            } catch (err) {
+                console.log(err);
+            }
+        }
+
+        fetchAPI();
+    }, [])
+
+
     const classes = useStyles();
     return (
         <Grid container spacing={2}>
-            <Grid item xs={6}>
+            <Grid item xs={4}>
                 <Autocomplete
                     options={rooms}
                     getOptionLabel={(option) => option.name}
@@ -98,7 +123,26 @@ export default function ScheduledFilter(props) {
                     )}
                 />
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={4}>
+                <Autocomplete
+                    options={courses}
+                    getOptionLabel={(option) => option.code}
+                    isOptionEqualToValue={(option, value) => value?.id === option?.id}
+                    value={course}
+                    multiple
+                    onChange={(event, newValue) => {
+                        setCourse(newValue);
+                    }}
+                    renderInput={(params) => (
+                        <TextField
+                            label="Môn học"
+                            fullWidth
+                            {...params}
+                        />
+                    )}
+                />
+            </Grid>
+            <Grid item xs={4}>
                 <Autocomplete
                     options={teachers}
                     getOptionLabel={(option) => option.fullname}
@@ -146,7 +190,8 @@ export default function ScheduledFilter(props) {
                                                     key={`${p}${day}`}
                                                     className={clsx(classes.tableCell,
                                                         classes.textCenter,
-                                                        { [classes.tableCellHighlight]: timetableFilters[day - 2][p - 1] !== false }
+                                                        { [classes.tableCellHighlight]: timetableFilters[day - 2][p - 1] !== false && timetableFilters[day - 2][p - 1] !== 'error' },
+                                                        { [classes.tableCellError]: timetableFilters[day - 2][p - 1] === 'error' }
                                                     )}
                                                 >
                                                     {timetableFilters[day - 2][p - 1] !== false ? timetableFilters[day - 2][p - 1] : ''}
@@ -179,6 +224,9 @@ const useStyles = makeStyles({
     },
     tableCellHighlight: {
         backgroundColor: '#74c2bb'
+    },
+    tableCellError: {
+        backgroundColor: '#f00',
     },
     tableCellLeft: {
         borderLeft: '1px solid rgba(224, 224, 224, 1)',

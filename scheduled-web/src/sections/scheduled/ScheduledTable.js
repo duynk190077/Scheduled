@@ -6,13 +6,21 @@ import {
     Stack,
     Typography,
 } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGridPremium, GridToolbar, GridToolbarContainer, GridToolbarExport } from '@mui/x-data-grid-premium';
 import { useEffect } from 'react';
 import Scrollbar from '../../components/scrollbar/Scrollbar'; 
 import { apiGetScheduled } from 'src/services/ClassCourse';
 import ScheduledFilter from './ScheduledFilter';
 
 
+
+function CustomToolbar() {
+    return (
+      <GridToolbarContainer>
+        <GridToolbarExport />
+      </GridToolbarContainer>
+    );
+  }
 
 const columns = [
     // { field: 'id', headerName: 'ID', width: 90 },
@@ -62,6 +70,17 @@ const columns = [
         field: 'size',
         headerName: 'Số lượng đăng kí',
         width: 150,
+    },
+    {
+        field: 'week',
+        headerName: 'Tuần học',
+        width: 150,
+        valueGetter: (params) => {
+            if (params.row.week.length === 0) return "1 - 18";
+            let week = '';
+            params.row.week.forEach(val => week = week + val + ', ');
+            return week;
+        }
     }
 ];
 
@@ -90,7 +109,8 @@ export default function ScheduledTable(props) {
             <Card>
                 <Scrollbar>
                     <Box sx={{ height: '25em' }}>
-                        <DataGrid
+                        <DataGridPremium
+                            components={{ Toolbar: GridToolbar   }}
                             rows={timetables}
                             columns={columns}
                             pageSize={5}

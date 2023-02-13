@@ -1,11 +1,14 @@
-import { Button, Grid, TextField } from "@mui/material";
+import { Autocomplete, Button, Grid, TextField } from "@mui/material";
 import { useState } from "react";
 import { apiCreateRoom } from "src/services/Room";
 
 const initRoom = {
     name: '',
     size: 0,
+    type: null
 }
+
+const ROOM_TYPES = ['LT+BT', 'TN'];
 
 export default function CreateRoomForm(props) {
     const [room, setRoom] = useState(initRoom);
@@ -14,13 +17,15 @@ export default function CreateRoomForm(props) {
         setRoom({...room, [property]: value });
     }
 
+    console.log(room);
+
     const handleCreateRoom = async() => {
         try {
             const response = await apiCreateRoom(room);
             if (response.data.status === 0) {
-                alert("Add Room successfully");
+                //alert("Add Room successfully");
                 props.onLoad();
-                setRoom(initRoom);
+                // setRoom(initRoom);
             }
         } catch(err){
             console.log(err);
@@ -42,6 +47,20 @@ export default function CreateRoomForm(props) {
                     value={room.size}
                     onChange={(e) => handleChangeRoom('size', e.target.value)}
                     fullWidth
+                />
+            </Grid>
+            <Grid item xs={6}>
+                <Autocomplete 
+                    options={ROOM_TYPES}
+                    getOptionLabel={(option) => option}
+                    value={room.type}
+                    onChange={(event, value) => handleChangeRoom('type', value)}
+                    renderInput={(params) => 
+                        <TextField 
+                            label="Loại phòng"
+                            {...params}
+                        />
+                    }
                 />
             </Grid>
             <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center' }}>

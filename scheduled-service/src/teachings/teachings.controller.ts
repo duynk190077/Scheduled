@@ -14,7 +14,11 @@ import { BaseController } from 'src/base/base.controller';
 import { Teaching } from './entities/teaching.entity';
 
 @Controller('teachings')
-export class TeachingsController extends BaseController<Teaching, CreateTeachingDto, UpdateTeachingDto> {
+export class TeachingsController extends BaseController<
+  Teaching,
+  CreateTeachingDto,
+  UpdateTeachingDto
+> {
   constructor(private readonly teachingsService: TeachingsService) {
     super(teachingsService);
   }

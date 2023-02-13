@@ -7,12 +7,15 @@ import { UpdateCourseDto } from './dto/update-course.dto';
 import { Course } from './entities/course.entity';
 
 @Injectable()
-export class CoursesService extends BaseService<Course, CreateCourseDto, UpdateCourseDto> {
-
+export class CoursesService extends BaseService<
+  Course,
+  CreateCourseDto,
+  UpdateCourseDto
+> {
   constructor(
-    @InjectModel('Course') private readonly courseModel: Model<Course & Document>
+    @InjectModel('Course')
+    private readonly courseModel: Model<Course & Document>,
   ) {
     super(courseModel);
   }
-
 }

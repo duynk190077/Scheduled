@@ -3,7 +3,7 @@ import {
     Box,
     Card,
 } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGridPremium } from '@mui/x-data-grid-premium';
 import { useEffect } from 'react';
 import { apiGetAllCourse } from 'src/services/Course';
 // components
@@ -65,7 +65,7 @@ export default function CourseTable(props) {
         <Card>
             <Scrollbar>
                 <Box sx={{ height: '25em' }}>
-                    <DataGrid
+                    <DataGridPremium
                         rows={courses}
                         columns={columns}
                         pageSize={5}

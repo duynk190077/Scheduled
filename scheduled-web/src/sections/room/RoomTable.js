@@ -3,7 +3,7 @@ import {
     Box,
     Card,
 } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGridPremium } from '@mui/x-data-grid-premium';
 import { useEffect } from 'react';
 import Scrollbar from '../../components/scrollbar/Scrollbar'; 
 import { apiGetAllRooms } from 'src/services/Room';
@@ -14,14 +14,17 @@ const columns = [
         field: 'name',
         headerName: 'Tên phòng',
         width: 200,
-        editable: true,
     },
     {
         field: 'size',
         headerName: 'Sức chứa',
         width: 150,
-        editable: true,
     },
+    {
+        field: 'type',
+        headerName: 'Loại phòng',
+        width: 150,
+    }
 ];
 
 export default function RoomTable(props) {
@@ -48,7 +51,7 @@ export default function RoomTable(props) {
         <Card>
             <Scrollbar>
                 <Box sx={{ height: '25em' }}>
-                    <DataGrid
+                    <DataGridPremium
                         rows={rooms}
                         columns={columns}
                         pageSize={5}

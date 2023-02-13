@@ -16,7 +16,7 @@ import { CoursesModule } from 'src/courses/courses.module';
     TeachingsModule,
     RoomsModule,
     TeachersModule,
-    CoursesModule
+    CoursesModule,
   ],
   controllers: [ClassCoursesController],
   providers: [ClassCoursesService],

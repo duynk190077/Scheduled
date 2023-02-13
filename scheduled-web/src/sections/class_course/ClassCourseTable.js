@@ -3,7 +3,7 @@ import {
     Box,
     Card,
 } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGridPremium, GridToolbar } from '@mui/x-data-grid-premium';
 import { useEffect } from 'react';
 // components
 import Scrollbar from '../../components/scrollbar/Scrollbar'; 
@@ -26,7 +26,7 @@ const columns = [
     {
         field: 'size',
         headerName: 'Số lượng đăng kí',
-        width: 120,
+        width: 150,
         editable: true,
     },
     {
@@ -34,6 +34,11 @@ const columns = [
         headerName: 'Số tiết',
         width: 160,
     },
+    {
+        field: 'type',
+        headerName: 'Loại lớp',
+        width: 160,
+    }
 ];
 
 export default function ClassCourseTable(props) {
@@ -60,7 +65,8 @@ export default function ClassCourseTable(props) {
         <Card>
             <Scrollbar>
                 <Box sx={{ height: '25em' }}>
-                    <DataGrid
+                    <DataGridPremium
+                        components={{ Toolbar: GridToolbar }}
                         rows={classCourses}
                         columns={columns}
                         pageSize={5}

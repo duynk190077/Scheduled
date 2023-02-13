@@ -19,7 +19,7 @@ export class Course {
   @Prop({ type: Number, required: true })
   lesson: number;
 
-  @Prop({ type: Number, required: true})
+  @Prop({ type: Number, required: true })
   train_credit: number;
 }
 
