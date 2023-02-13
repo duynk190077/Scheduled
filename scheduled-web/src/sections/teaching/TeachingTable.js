@@ -3,7 +3,7 @@ import {
     Box,
     Card,
 } from '@mui/material';
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGridPremium } from '@mui/x-data-grid-premium';
 import { useEffect } from 'react';
 import Scrollbar from '../../components/scrollbar/Scrollbar'; 
 import { apiGetAllTeaching } from 'src/services/Teaching';
@@ -47,7 +47,7 @@ export default function TeachingTable(props) {
         <Card>
             <Scrollbar>
                 <Box sx={{ height: '25em' }}>
-                    <DataGrid
+                    <DataGridPremium
                         rows={teachings}
                         columns={columns}
                         pageSize={5}

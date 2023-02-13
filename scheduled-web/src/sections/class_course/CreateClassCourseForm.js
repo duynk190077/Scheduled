@@ -8,7 +8,10 @@ const initClassCourse = {
     course_code: null,
     lesson: 0,
     size: 0,
+    type: null
 }
+
+const CLASS_TYPES = ["LT+BT", "TN"];
 
 export default function ClassCreateCourseForm(props) {
     const [classCourse, setClassCourse] = useState(initClassCourse);
@@ -44,7 +47,7 @@ export default function ClassCreateCourseForm(props) {
         try {
             const response = await apiCreateClassCourse(classCourse);
             if (response.data.status === 0) {
-                alert("Add Class Course successfully");
+                // alert("Add Class Course successfully");
                 props.onLoad();
                 // setClassCourse(initClassCourse);
             }
@@ -54,7 +57,7 @@ export default function ClassCreateCourseForm(props) {
     }
     return (
         <Grid container spacing={2}>
-            <Grid item xs={12}>
+            <Grid item xs={6}>
                 <TextField
                     label="Mã lớp học"
                     value={classCourse.code}
@@ -90,6 +93,38 @@ export default function ClassCreateCourseForm(props) {
                     fullWidth
                 />
             </Grid>
+            <Grid item xs={6}>
+                <Autocomplete 
+                    options={CLASS_TYPES}
+                    getOptionLabel={(option) => option}
+                    value={classCourse.type}
+                    onChange={(event, newValue) => {
+                        handleChangeClassCourse('type', newValue);
+                        if (newValue === 'LT+BT' && classCourse.course_code !== null) {
+                            const course = courses.find((e) => e.code === classCourse.course_code);
+                            handleChangeClassCourse('lesson', course.lesson)
+                        }
+                    }}
+                    renderInput={(params) => 
+                        <TextField 
+                            label="Loại lớp"
+                            {...params}
+                        />
+                    }
+                />
+            </Grid>
+            {classCourse.type === 'TN' &&
+                <Grid item xs={6}>
+                    <TextField
+                        label="Số tiết"
+                        type={'number'}
+                        value={classCourse.lesson}
+                        onChange={(e) => handleChangeClassCourse('lesson', e.target.value)}
+                        fullWidth
+                    />
+                </Grid>
+
+            }
             <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center' }}>
                 <Button variant="contained" color="secondary" onClick={handleCreateClassCourse}>Thêm mới</Button>
             </Grid>
