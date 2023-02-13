@@ -24,10 +24,10 @@ export class ClassCoursesController extends BaseController<
   constructor(private readonly classCoursesService: ClassCoursesService) {
     super(classCoursesService);
   }
-  @Get('/scheduled/build')
-  async scheduled() {
+  @Post('/scheduled/build')
+  async scheduled(@Body() scheduledData: any) {
     try {
-      return await this.classCoursesService.scheduled();
+      return await this.classCoursesService.scheduled(scheduledData);
     } catch (err) {
       return new ResponseDto(1, 500, err);
     }
